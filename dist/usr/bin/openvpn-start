@@ -1,0 +1,31 @@
+#!/bin/sh
+
+if [ ! -f /etc/openvpn/certs/ca.crt ]; then
+    easyrsa init-pki
+    easyrsa build-ca nopass <<EOF
+Dockerized OpenVPN server
+EOF
+    easyrsa gen-dh
+    openvpn --genkey secret /etc/openvpn/certs/ta.key
+    easyrsa build-server-full server nopass <<EOF
+yes
+EOF
+    easyrsa gen-crl
+
+    cp /pki/ca.crt /etc/openvpn/certs/ca.crt
+    cp /pki/issued/server.crt /etc/openvpn/certs/server.crt
+    cp /pki/private/server.key /etc/openvpn/certs/server.key
+    cp /pki/dh.pem /etc/openvpn/certs/dh.pem
+fi
+
+if [ ! -f /dev/net/tun ]; then
+    mkdir -p /dev/net
+    mknod /dev/net/tun c 10 200
+    chmod 600 /dev/net/tun
+fi
+
+iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE
+
+for config in "/etc/openvpn/*.conf"; do
+    openvpn --daemon --config $config
+done
