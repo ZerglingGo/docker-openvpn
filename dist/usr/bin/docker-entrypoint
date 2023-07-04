@@ -1,0 +1,7 @@
+#!/bin/sh
+
+if [ "$1" = 'openvpn-start' ]; then
+    exec openvpn-start "$@"
+fi
+
+exec "$@"

@@ -14,4 +14,5 @@ RUN apk update \
 
 VOLUME ["/etc/openvpn"]
 
-ENTRYPOINT ["openvpn-start"]
+ENTRYPOINT ["docker-entrypoint"]
+CMD ["openvpn-start"]
