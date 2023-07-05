@@ -26,6 +26,10 @@ fi
 
 iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE
 
-for config in "/etc/openvpn/*.conf"; do
-    openvpn --daemon --config $config
+for config in /etc/openvpn/*.conf; do
+    openvpn --config $config &
 done
+
+wait -n
+
+exit $?
